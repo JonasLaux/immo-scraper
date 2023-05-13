@@ -1,4 +1,3 @@
-import type { AxiosError } from 'axios';
 import { http, Request, Response } from '@google-cloud/functions-framework';
 import { WillHabenService } from '../../services/willHaben.service';
 
