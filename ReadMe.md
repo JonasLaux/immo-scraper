@@ -1,6 +1,10 @@
 # immo-scraper
 
-Immo-scraper is a Node.js application for scraping real estate data.
+Immo-scraper is a Node.js application for scraping real estate data and send them do a Discord Channel.
+
+
+## Prequisite 
+Have a Discord Bot created and get the Token.
 
 ## Installation
 1. Install the dependencies:
@@ -8,8 +12,11 @@ Immo-scraper is a Node.js application for scraping real estate data.
 ```bash
 yarn
 ```
+2. Create Env Vars
+   Copy the .env.template to .env and fill out all EnvVars
 
-2. Build the application:
+
+3. Build the application:
 
 ```bash
 yarn build
