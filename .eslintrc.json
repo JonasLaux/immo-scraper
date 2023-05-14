@@ -1,7 +1,7 @@
 {
   "extends": "./node_modules/gts/",
   "rules": {
-    "arrow-parens":"error"
+    "arrow-parens": "error"
   },
   "overrides": [
     {
@@ -9,8 +9,8 @@
       "rules": {
         "object-curly-spacing": ["error", "always"],
         "array-bracket-spacing": ["error", "always"],
-        "computed-property-spacing": ["error", "always"],
-        "arrow-parens":"error"
+        "computed-property-spacing": ["error", "never"],
+        "arrow-parens": ["error", "as-needed"]
       }
     }
   ]
