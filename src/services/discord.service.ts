@@ -1,26 +1,13 @@
 import { Client, TextChannel, GatewayIntentBits } from 'discord.js';
 
-export class DiscordPublisher {
+export default class DiscordService {
   private client: Client;
   private token: string;
   private channelId: string;
 
-  constructor() {
-    if (
-      !process.env.DISCORD_TOKEN &&
-      typeof process.env.DISCORD_TOKEN !== 'string'
-    ) {
-      throw new Error('DISCORD_TOKEN env variable is not set');
-    }
-    if (
-      !process.env.DISCORD_CHANNEL_ID &&
-      typeof process.env.DISCORD_CHANNEL_ID !== 'string'
-    ) {
-      throw new Error('DISCORD_CHANNEL_ID env variable is not set');
-    }
-
-    this.token = process.env.DISCORD_TOKEN;
-    this.channelId = process.env.DISCORD_CHANNEL_ID;
+  constructor(token: string, channelId: string) {
+    this.token = token;
+    this.channelId = channelId;
 
     this.client = new Client({
       intents: [
