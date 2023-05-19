@@ -1,4 +1,5 @@
 export type FlatElement = {
+  id: string;
   description: string;
   link: string;
   location: string;

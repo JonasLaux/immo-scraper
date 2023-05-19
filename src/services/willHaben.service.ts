@@ -50,6 +50,7 @@ export default class WillHabenService {
             const publishedAt = dayjs(publishedAtRaw).format('DD.MM.YYYY');
 
             const newFlat: FlatElement = {
+              id: element.id,
               description: element.description,
               link: element.contextLinkList.contextLink.find(
                 (links: ContextLinks) => links.id === 'iadShareLink'
