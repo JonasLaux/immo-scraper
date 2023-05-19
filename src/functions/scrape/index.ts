@@ -1,7 +1,6 @@
 import { http, Request, Response } from '@google-cloud/functions-framework';
 import WillHabenService from '../../services/willHaben.service';
 import DiscordService from '../../services/discord.service';
-import { constructMessage } from '../../services/util.service';
 
 const willHabenService = new WillHabenService();
 
@@ -24,16 +23,21 @@ const main = async () => {
   ) {
     throw new Error('DISCORD_CHANNEL_ID env variable is not set');
   }
-  console.log(process.env.DISCORD_TOKEN);
   const discordService = new DiscordService(
     process.env.DISCORD_TOKEN,
     process.env.DISCORD_CHANNEL_ID
   );
 
-  const flats = await willHabenService.getFlats();
+  let flats = await willHabenService.getFlats();
+  flats = flats.slice(0, 3);
   await discordService.connect();
   await Promise.all(
-    flats.map(flat => discordService.publishMessage(constructMessage(flat)))
+    flats.map(async flat => {
+      const isMessagePosted = await discordService.isFlatPosted(flats[0].id);
+      if (!isMessagePosted) {
+        discordService.publishMessage(discordService.constructEmbed(flat));
+      }
+    })
   );
   await discordService.disconnect();
 };
