@@ -1,6 +1,11 @@
 import { chromium } from 'playwright';
-import { FlatElement } from '../types';
+import { FlatElement } from '../global.types';
 const dayjs = require('dayjs');
+import {
+  VIENNADISTRICTS,
+  PROPERTYTYPES,
+  FREEAREATYPES,
+} from './willHaben.types';
 
 type AdvertImage = {
   mainImageUrl: string;
@@ -19,13 +24,52 @@ type TeaserAttributes = {
   postfix: string;
   value: string;
 };
+
+export type WillHabenConfig = {
+  AREA_ID?: VIENNADISTRICTS[];
+  PRICE_FROM?: string;
+  PRICE_TO?: string;
+  LIVING_AREA_FROM?: string;
+  LIVING_AREA_TO?: string;
+  FREE_AREA_TYPE?: FREEAREATYPES[];
+  PROPERTY_TYPE?: PROPERTYTYPES[];
+  TIME_PERIOD?: string;
+  keyword?: string;
+};
+
 export default class WillHabenService {
   private url =
-    'https://www.willhaben.at/iad/immobilien/mietwohnungen/mietwohnung-angebote?areaId=117224&PRICE_TO=2500&ESTATE_SIZE/LIVING_AREA_FROM=90';
-  public async getFlats(): Promise<FlatElement[]> {
+    'https://www.willhaben.at/iad/immobilien/mietwohnungen/mietwohnung-angebote';
+
+  public async getFlats(config: WillHabenConfig): Promise<FlatElement[]> {
+    const params = new URLSearchParams();
+
+    config.AREA_ID?.forEach(area => {
+      params.append('areaId', area);
+    });
+    config.PROPERTY_TYPE?.forEach(type => {
+      params.append('PROPERTY_TYPE', type);
+    });
+    config.FREE_AREA_TYPE?.forEach(freeArea => {
+      params.append('FREE_AREA/FREE_AREA_TYPE', freeArea);
+    });
+
+    config.keyword ? params.append('keyword', config.keyword) : null;
+    config.PRICE_FROM ? params.append('PRICE_FROM', config.PRICE_FROM) : null;
+    config.PRICE_TO ? params.append('PRICE_TO', config.PRICE_TO) : null;
+    config.LIVING_AREA_FROM
+      ? params.append('ESTATE_SIZE/LIVING_AREA_FROM', config.LIVING_AREA_FROM)
+      : null;
+    config.LIVING_AREA_TO
+      ? params.append('ESTATE_SIZE/LIVING_AREA_TO', config.LIVING_AREA_TO)
+      : null;
+    config.TIME_PERIOD ? params.append('periode', config.TIME_PERIOD) : null;
+
     const browser = await chromium.launch({
       headless: true,
     });
+
+    this.url = `${this.url}?${params.toString()}`;
 
     const page = await browser.newPage();
     await page.goto(this.url);
@@ -54,19 +98,19 @@ export default class WillHabenService {
               description: element.description,
               link: element.contextLinkList.contextLink.find(
                 (links: ContextLinks) => links.id === 'iadShareLink'
-              ).uri,
+              )?.uri,
               location: element.attributes.attribute.find(
                 (attr: Attribute) => attr.name === 'LOCATION'
-              ).values[0],
+              )?.values[0],
               price: element.attributes.attribute.find(
                 (attr: Attribute) => attr.name === 'PRICE_FOR_DISPLAY'
-              ).values[0],
+              )?.values[0],
               squareMeters: element.teaserAttributes.find(
                 (attr: TeaserAttributes) => attr.postfix === 'm²'
-              ).value,
+              )?.value,
               rooms: element.teaserAttributes.find(
                 (attr: TeaserAttributes) => attr.postfix === 'Zimmer'
-              ).value,
+              )?.value,
               publishedAt,
               images,
             };

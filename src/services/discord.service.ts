@@ -4,7 +4,7 @@ import {
   GatewayIntentBits,
   EmbedBuilder,
 } from 'discord.js';
-import { FlatElement } from '../types';
+import { FlatElement } from '../global.types';
 
 export default class DiscordService {
   private client: Client;
