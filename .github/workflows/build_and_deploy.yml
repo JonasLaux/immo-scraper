@@ -22,7 +22,7 @@ jobs:
         name: 'Deploy Function'
         uses: 'google-github-actions/deploy-cloud-functions@v1'
         with:
-          name: 'immp-scrape'
+          name: 'immo-scrape'
           runtime: 'nodejs18'
           region: 'europe-west3'
           entry_point: 'scrape'
