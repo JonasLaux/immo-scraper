@@ -31,8 +31,8 @@ jobs:
         uses: 'google-github-actions/setup-gcloud@v1'
 
       - name: 'Deploy Scheduler'
-        run: |
-          gcloud scheduler jobs create http YOUR_SCHEDULER_JOB_NAME \
-          --schedule="0 * * * *" \
-          --http-method=GET \
-          --uri=${{steps.deploy.outputs.url}}' \
+        run: >
+          gcloud scheduler jobs create http trigger-immo-scraper
+          --schedule="0 * * * *"
+          --http-method=GET
+          --uri=${{steps.deploy.outputs.url}}'
