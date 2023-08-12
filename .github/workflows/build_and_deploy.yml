@@ -32,8 +32,18 @@ jobs:
 
       - name: 'Deploy Scheduler'
         run: >
-          gcloud scheduler jobs create http trigger-immo-scraper
-          --schedule="0 * * * *"
-          --location=europe-west3
-          --http-method=GET
-          --uri=${{steps.deploy.outputs.url}}
+          if gcloud scheduler jobs describe trigger-immo-scraper; then
+            echo "Job exists, updating..."
+            gcloud scheduler jobs update http trigger-immo-scraper
+            --schedule="0 * * * *"
+            --location=europe-west3
+            --http-method=GET
+            --uri=${{steps.deploy.outputs.url}}
+          else
+            echo "Job doesn't exist, creating..."
+            gcloud scheduler jobs create http trigger-immo-scraper
+            --schedule="0 * * * *"
+            --location=europe-west3
+            --http-method=GET
+            --uri=${{steps.deploy.outputs.url}}
+          fi
