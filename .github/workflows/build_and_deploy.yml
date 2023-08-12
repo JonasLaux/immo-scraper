@@ -35,4 +35,4 @@ jobs:
           gcloud scheduler jobs create http trigger-immo-scraper
           --schedule="0 * * * *"
           --http-method=GET
-          --uri=${{steps.deploy.outputs.url}}'
+          --uri=${{steps.deploy.outputs.url}}
