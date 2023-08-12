@@ -25,8 +25,7 @@ http('scrape', async (req: Request, res: Response) => {
     process.env.DISCORD_CHANNEL_ID
   );
 
-  let flats = await willHabenService.getFlats(willHabenConfig);
-  flats = flats.slice(0, 3);
+  const flats = await willHabenService.getFlats(willHabenConfig);
   await discordService.connect();
   await Promise.all(
     flats.map(async flat => {
