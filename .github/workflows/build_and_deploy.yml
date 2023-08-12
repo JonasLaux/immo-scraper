@@ -24,6 +24,7 @@ jobs:
           name: 'immp-scrape'
           runtime: 'nodejs18'
           region: 'europe-west3'
+          entry_point: 'scrape'
 
       - id: 'deploy_scheduler'
         run: \
