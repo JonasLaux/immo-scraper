@@ -1,0 +1,39 @@
+name: Deploy to Google Cloud
+
+on:
+  push:
+
+jobs:
+  deploy:
+    runs-on: 'ubuntu-latest'
+    permissions:
+      contents: 'read'
+      id-token: 'write'
+
+    steps:
+      - uses: 'actions/checkout@v3'
+
+      - id: 'auth'
+        uses: 'google-github-actions/auth@v1'
+        with:
+          credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
+
+      - id: 'deploy'
+        name: 'Deploy Function'
+        uses: 'google-github-actions/deploy-cloud-functions@v1'
+        with:
+          name: 'immo-scrape'
+          runtime: 'nodejs18'
+          region: 'europe-west3'
+          entry_point: 'scrape'
+
+      - name: 'Set up Cloud SDK'
+        uses: 'google-github-actions/setup-gcloud@v1'
+
+      - name: 'Deploy Scheduler'
+        run: >
+          gcloud scheduler jobs create http trigger-immo-scraper
+          --schedule="0 * * * *"
+          --location=europe-west3
+          --http-method=GET
+          --uri=${{steps.deploy.outputs.url}}
