@@ -26,7 +26,7 @@ jobs:
           runtime: 'nodejs18'
           region: 'europe-west3'
           entry_point: 'scrape'
-          env_vars: DISCORD_TOKEN:${{ secrets.DISCORD_TOKEN }},DISCORD_CHANNEL_ID:${{ secrets.DISCORD_CHANNEL_ID }}
+          env_vars: DISCORD_TOKEN=${{ secrets.DISCORD_TOKEN }},DISCORD_CHANNEL_ID=${{ secrets.DISCORD_CHANNEL_ID }}
 
       - name: 'Set up Cloud SDK'
         uses: 'google-github-actions/setup-gcloud@v1'
