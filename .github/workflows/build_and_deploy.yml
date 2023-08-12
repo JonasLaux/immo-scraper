@@ -18,14 +18,14 @@ jobs:
         with:
           credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
 
-      # - id: 'deploy'
-      #   name: 'Deploy Function'
-      #   uses: 'google-github-actions/deploy-cloud-functions@v1'
-      #   with:
-      #     name: 'immo-scrape'
-      #     runtime: 'nodejs18'
-      #     region: 'europe-west3'
-      #     entry_point: 'scrape'
+      - id: 'deploy'
+        name: 'Deploy Function'
+        uses: 'google-github-actions/deploy-cloud-functions@v1'
+        with:
+          name: 'immo-scrape'
+          runtime: 'nodejs18'
+          region: 'europe-west3'
+          entry_point: 'scrape'
 
       - name: 'Set up Cloud SDK'
         uses: 'google-github-actions/setup-gcloud@v1'
