@@ -76,6 +76,7 @@ export default class DiscordService {
       }
 
       await channel.send({ embeds: [message] });
+      return Promise.resolve();
     } catch (error) {
       console.error(error);
     }
