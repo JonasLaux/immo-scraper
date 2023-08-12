@@ -26,13 +26,13 @@ jobs:
           runtime: 'nodejs18'
           region: 'europe-west3'
           entry_point: 'scrape'
-
+          
       - name: 'Set up Cloud SDK'
         uses: 'google-github-actions/setup-gcloud@v1'
 
       - name: 'Deploy Scheduler'
         run: >
-          if gcloud scheduler jobs describe trigger-immo-scraper; then
+          if gcloud scheduler jobs describe trigger-immo-scraper --location=europe-west3; then
             echo "Job exists, updating..."
             gcloud scheduler jobs update http trigger-immo-scraper
             --schedule="0 * * * *"
