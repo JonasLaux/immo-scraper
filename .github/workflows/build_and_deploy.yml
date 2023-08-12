@@ -23,6 +23,7 @@ jobs:
         with:
           name: 'immp-scrape'
           runtime: 'nodejs18'
+          region: 'europe-west3'
 
       - id: 'deploy_scheduler'
         run: \
