@@ -1,4 +1,4 @@
-import { chromium } from 'playwright';
+import { chromium } from 'playwright-chromium';
 import { FlatElement } from '../global.types';
 const dayjs = require('dayjs');
 import {
