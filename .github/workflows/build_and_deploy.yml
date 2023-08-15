@@ -20,13 +20,15 @@ jobs:
 
       - id: 'deploy'
         name: 'Deploy Function'
+        env: 
+          PLAYWRIGHT_BROWSERS_PATH: 0
         uses: 'google-github-actions/deploy-cloud-functions@v1'
         with:
           name: 'immo-scrape'
           runtime: 'nodejs18'
           region: 'europe-west3'
           entry_point: 'scrape'
-          env_vars: DISCORD_TOKEN=${{ secrets.DISCORD_TOKEN }},DISCORD_CHANNEL_ID=${{ secrets.DISCORD_CHANNEL_ID }}
+          env_vars: DISCORD_TOKEN=${{ secrets.DISCORD_TOKEN }},DISCORD_CHANNEL_ID=${{ secrets.DISCORD_CHANNEL_ID }},PLAYWRIGHT_BROWSERS_PATH=0
 
       - name: 'Set up Cloud SDK'
         uses: 'google-github-actions/setup-gcloud@v1'
