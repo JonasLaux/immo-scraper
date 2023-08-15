@@ -19,15 +19,18 @@ jobs:
           credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
 
       - id: 'deploy'
-        name: 'Deploy Function'
+        name: 'Install Deps'
         env: 
           PLAYWRIGHT_BROWSERS_PATH: 0
         run: >
-          yarn && npx playwright install && 
+          yarn && npx playwright install
+        
+      - name: 'Deploy Function'
+        run: >
           gcloud functions deploy immo-scrape 
-            --source . 
-            --gen2 
-            --runtime nodejs18 
+            --source .
+            --gen2
+            --runtime nodejs18
             --trigger-http 
             --region=europe-west3 
             --entry-point=scrape 
