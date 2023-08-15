@@ -22,20 +22,20 @@ jobs:
         name: 'Deploy Function'
         env: 
           PLAYWRIGHT_BROWSERS_PATH: 0
-        uses: 'google-github-actions/deploy-cloud-functions@v1'
-        with:
-          name: 'immo-scrape'
-          runtime: 'nodejs18'
-          region: 'europe-west3'
-          entry_point: 'scrape'
-          env_vars: DISCORD_TOKEN=${{ secrets.DISCORD_TOKEN }},DISCORD_CHANNEL_ID=${{ secrets.DISCORD_CHANNEL_ID }},PLAYWRIGHT_BROWSERS_PATH=0
-
-      - name: 'Set up Cloud SDK'
-        uses: 'google-github-actions/setup-gcloud@v1'
+        run: >
+          yarn && npx playwright install && 
+          gcloud functions deploy immo-scrape 
+            --source . 
+            --gen2 
+            --runtime nodejs18 
+            --trigger-http 
+            --region=europe-west3 
+            --entry-point=scrape 
+            --set-env-vars=DISCORD_TOKEN=${{ secrets.DISCORD_TOKEN }},DISCORD_CHANNEL_ID=${{ secrets.DISCORD_CHANNEL_ID }},PLAYWRIGHT_BROWSERS_PATH=0
 
       - name: 'Deploy Scheduler'
         run: >
-          if gcloud scheduler jobs describe trigger-immo-scraper --location=europe-west3; then
+          if gcloud scheduler jobs describe trigger-immo-scraper --location=europe-west3 ; then
             echo "Job exists, updating..."
             gcloud scheduler jobs update http trigger-immo-scraper
             --schedule="0 * * * *"
