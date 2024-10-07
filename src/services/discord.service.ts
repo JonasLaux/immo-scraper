@@ -111,6 +111,9 @@ export default class DiscordService {
   }
 
   disconnect(): void {
+    if (!this.client) {
+      return;
+    }
     this.client.destroy();
   }
 }

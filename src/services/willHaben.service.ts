@@ -1,6 +1,7 @@
-import { chromium } from 'playwright-chromium';
+import chromium from '@sparticuz/chromium';
+import { chromium as playwright } from 'playwright-core';
 import { FlatElement } from '../global.types';
-const dayjs = require('dayjs');
+import dayjs from 'dayjs';
 import {
   VIENNADISTRICTS,
   PROPERTYTYPES,
@@ -36,7 +37,6 @@ export type WillHabenConfig = {
   TIME_PERIOD?: string;
   keyword?: string;
 };
-
 export default class WillHabenService {
   private url =
     'https://www.willhaben.at/iad/immobilien/mietwohnungen/mietwohnung-angebote';
@@ -65,11 +65,13 @@ export default class WillHabenService {
       : null;
     config.TIME_PERIOD ? params.append('periode', config.TIME_PERIOD) : null;
 
-    const browser = await chromium.launch({
+    const browser = await playwright.launch({
+      args: chromium.args,
+      executablePath: await chromium.executablePath(),
       headless: true,
     });
 
-    this.url = `${this.url}?${params.toString()}`;
+    this.url = `${this.url}?${params.toString()}&rows=60`;
 
     const page = await browser.newPage();
     await page.goto(this.url);
