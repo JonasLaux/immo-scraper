@@ -26,32 +26,33 @@ export default class DiscordService {
     const embed = new EmbedBuilder()
       .setTitle(flat.description)
       .setURL(flat.link)
-      .addFields(
-        {
-          name: 'ID',
-          value: flat.id,
-        },
-        {
-          name: 'Location',
-          value: flat.location,
-        },
-        {
-          name: 'Price',
-          value: flat.price,
-        },
-        {
-          name: 'Rooms',
-          value: flat.rooms.toString(),
-        },
-        {
-          name: 'Square Meters',
-          value: flat.squareMeters.toString(),
-        },
-        {
-          name: 'Published At',
-          value: flat.publishedAt,
-        }
-      );
+      .setTimestamp();
+
+    const fieldDefinitions: Record<string, (f: FlatElement) => string | null> =
+      {
+        ID: f => f.id,
+        Location: f => f.location,
+        Price: f => f.price,
+        Rooms: f => f.rooms,
+        Address: f => f.address || 'NO ADDRESS FOUND',
+        'Free Area': f => f.freeArea || 'NO OUTSIDE AREA',
+        'Square Meters': f => f.squareMeters,
+        'Price per Square Meter': f =>
+          f.price && f.squareMeters
+            ? (parseInt(f.price) / parseInt(f.squareMeters)).toFixed(2)
+            : null,
+        'Published At': f => f.publishedAt,
+      };
+    Object.entries(fieldDefinitions).forEach(([name, getValue]) => {
+      const value = getValue(flat);
+      if (value) embed.addFields({ name, value });
+      if (value && name === 'Price per Square Meter' && parseInt(value) < 15) {
+        embed.setColor('#00FF00');
+      }
+      if (value && name === 'Price per Square Meter' && parseInt(value) > 20) {
+        embed.setColor('#FF0000');
+      }
+    });
 
     if (flat.images && flat.images.length > 0) {
       embed.setImage(flat.images[0]);
@@ -92,7 +93,7 @@ export default class DiscordService {
         throw new Error(`Channel with id ${this.channelId} not found`);
       }
 
-      const messages = await channel.messages.fetch();
+      const messages = await channel.messages.fetch({ limit: 100 });
       const message = messages.find(message =>
         message.embeds[0].data.fields?.find(
           field => field.name === 'ID' && field.value === flatId

@@ -1,4 +1,4 @@
-import { HttpFunction } from '@google-cloud/functions-framework';
+import { CloudEventFunction } from '@google-cloud/functions-framework';
 import WillHabenService from '../../services/willHaben.service';
 import DiscordService from '../../services/discord.service';
 
@@ -7,7 +7,8 @@ import willHabenConfig from './willhaben.config';
 
 const willHabenService = new WillHabenService();
 
-export const scrape: HttpFunction = async (req, res) => {
+// No payload needed for now
+export const scrape: CloudEventFunction = async () => {
   if (
     !process.env.DISCORD_TOKEN &&
     typeof process.env.DISCORD_TOKEN !== 'string'
@@ -28,24 +29,24 @@ export const scrape: HttpFunction = async (req, res) => {
   try {
     const flats = await willHabenService.getFlats(willHabenConfig);
     await discordService.connect();
+    let messagesPosted = 0;
     await Promise.all(
       flats.map(async flat => {
         const isMessagePosted = await discordService.isFlatPosted(flat.id);
         if (!isMessagePosted) {
-          return discordService.publishMessage(
+          await discordService.publishMessage(
             discordService.constructEmbed(flat)
           );
+          messagesPosted++;
         }
       })
     );
+    console.log(`Posted ${messagesPosted} messages`);
   } catch (error) {
     console.error('Error occurred:', error);
-    res.status(500).send('An error occurred');
   } finally {
     await discordService.disconnect();
   }
-
-  res.send('OK!');
 };
 
 export default scrape;

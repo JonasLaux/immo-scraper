@@ -1,5 +1,3 @@
-import chromium from '@sparticuz/chromium';
-import { chromium as playwright } from 'playwright-core';
 import { FlatElement } from '../global.types';
 import dayjs from 'dayjs';
 import {
@@ -7,6 +5,7 @@ import {
   PROPERTYTYPES,
   FREEAREATYPES,
 } from './willHaben.types';
+import * as Cheerio from 'cheerio';
 
 type AdvertImage = {
   mainImageUrl: string;
@@ -53,7 +52,6 @@ export default class WillHabenService {
     config.FREE_AREA_TYPE?.forEach(freeArea => {
       params.append('FREE_AREA/FREE_AREA_TYPE', freeArea);
     });
-
     config.keyword ? params.append('keyword', config.keyword) : null;
     config.PRICE_FROM ? params.append('PRICE_FROM', config.PRICE_FROM) : null;
     config.PRICE_TO ? params.append('PRICE_TO', config.PRICE_TO) : null;
@@ -65,19 +63,15 @@ export default class WillHabenService {
       : null;
     config.TIME_PERIOD ? params.append('periode', config.TIME_PERIOD) : null;
 
-    const browser = await playwright.launch({
-      args: chromium.args,
-      executablePath: await chromium.executablePath(),
-      headless: true,
-    });
-
-    this.url = `${this.url}?${params.toString()}&rows=60`;
-
-    const page = await browser.newPage();
-    await page.goto(this.url);
-
     try {
-      const dataRaw = await page.locator('#__NEXT_DATA__').textContent();
+      this.url = `${this.url}?${params.toString()}`;
+      const response = await fetch(this.url);
+      if (!response.ok) {
+        return Promise.reject('Failed to fetch data');
+      }
+      const html = await response.text();
+      const $ = Cheerio.load(html);
+      const dataRaw = $('#__NEXT_DATA__').html();
       if (dataRaw) {
         const flats: Array<FlatElement> = [];
         const data = JSON.parse(dataRaw);
@@ -105,14 +99,21 @@ export default class WillHabenService {
                 (attr: Attribute) => attr.name === 'LOCATION'
               )?.values[0],
               price: element.attributes.attribute.find(
-                (attr: Attribute) => attr.name === 'PRICE_FOR_DISPLAY'
+                (attr: Attribute) => attr.name === 'PRICE'
               )?.values[0],
-              squareMeters: element.teaserAttributes.find(
-                (attr: TeaserAttributes) => attr.postfix === 'm²'
-              )?.value,
-              rooms: element.teaserAttributes.find(
-                (attr: TeaserAttributes) => attr.postfix === 'Zimmer'
-              )?.value,
+              address: element.attributes.attribute.find(
+                (attr: Attribute) => attr.name === 'ADDRESS'
+              )?.values[0],
+              freeArea: element.attributes.attribute.find(
+                (attr: Attribute) =>
+                  attr.name === 'FREE_AREA/FREE_AREA_AREA_TOTAL'
+              )?.values[0],
+              rooms: element.attributes.attribute.find(
+                (attr: Attribute) => attr.name === 'NUMBER_OF_ROOMS'
+              )?.values[0],
+              squareMeters: element.attributes.attribute.find(
+                (attr: Attribute) => attr.name === 'ESTATE_SIZE'
+              )?.values[0],
               publishedAt,
               images,
             };
@@ -126,8 +127,6 @@ export default class WillHabenService {
     } catch (err) {
       console.error(err);
       return Promise.reject(err);
-    } finally {
-      await browser.close();
     }
   }
 }
