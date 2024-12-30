@@ -30,18 +30,19 @@ export default class DiscordService {
 
     const fieldDefinitions: Record<string, (f: FlatElement) => string | null> =
       {
-        ID: f => f.id,
-        Location: f => f.location,
         Price: f => f.price,
         Rooms: f => f.rooms,
-        Address: f => f.address || 'NO ADDRESS FOUND',
-        'Free Area': f => f.freeArea || 'NO OUTSIDE AREA',
         'Square Meters': f => f.squareMeters,
         'Price per Square Meter': f =>
           f.price && f.squareMeters
             ? (parseInt(f.price) / parseInt(f.squareMeters)).toFixed(2)
             : null,
+        Location: f => f.location,
+        Address: f => f.address || 'NO ADDRESS FOUND',
+        'Free Area': f => f.freeArea || 'NO OUTSIDE AREA',
         'Published At': f => f.publishedAt,
+        Company: f => f.company,
+        ID: f => f.id,
       };
     Object.entries(fieldDefinitions).forEach(([name, getValue]) => {
       const value = getValue(flat);

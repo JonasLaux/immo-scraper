@@ -42,3 +42,9 @@ export enum FREEAREATYPES {
   TERRACE = '10',
   WINTERGARDEN = '50',
 }
+
+export enum NO_OF_ROOMS_BUCKET {
+  FOUR = '4X4',
+  FIVE = '5X5',
+  SIX_AND_MORE = '6X9',
+}

@@ -1,8 +1,8 @@
 import { WillHabenConfig } from '../../services/willHaben.service';
 import {
-  FREEAREATYPES,
   PROPERTYTYPES,
   VIENNADISTRICTS,
+  NO_OF_ROOMS_BUCKET,
 } from '../../services/willHaben.types';
 
 const willHabenConfig: WillHabenConfig = {
@@ -26,16 +26,13 @@ const willHabenConfig: WillHabenConfig = {
     PROPERTYTYPES.TOPFLOOR_APARTMENT,
     PROPERTYTYPES.LOFT,
   ],
-  // FREE_AREA_TYPE: [
-  //   FREEAREATYPES.BALCONY,
-  //   FREEAREATYPES.GARDEN,
-  //   FREEAREATYPES.LOGGIA,
-  //   FREEAREATYPES.ROOFTERRACE,
-  //   FREEAREATYPES.TERRACE,
-  //   FREEAREATYPES.WINTERGARDEN,
-  // ],
+  NO_OF_ROOMS_BUCKET: [
+    NO_OF_ROOMS_BUCKET.FOUR,
+    NO_OF_ROOMS_BUCKET.FIVE,
+    NO_OF_ROOMS_BUCKET.SIX_AND_MORE,
+  ],
   PRICE_FROM: '700',
-  PRICE_TO: '2500',
+  PRICE_TO: '2700',
   keyword: 'altbau',
   LIVING_AREA_FROM: '95',
   // TIME_PERIOD: '2',

@@ -9,5 +9,6 @@ export type FlatElement = {
   rooms: string;
   squareMeters: string;
   publishedAt: string;
+  company: string;
   images?: string[];
 };

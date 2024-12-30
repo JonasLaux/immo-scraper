@@ -4,6 +4,7 @@ import {
   VIENNADISTRICTS,
   PROPERTYTYPES,
   FREEAREATYPES,
+  NO_OF_ROOMS_BUCKET,
 } from './willHaben.types';
 import * as Cheerio from 'cheerio';
 
@@ -20,11 +21,6 @@ type Attribute = {
   values: string[];
 };
 
-type TeaserAttributes = {
-  postfix: string;
-  value: string;
-};
-
 export type WillHabenConfig = {
   AREA_ID?: VIENNADISTRICTS[];
   PRICE_FROM?: string;
@@ -34,6 +30,7 @@ export type WillHabenConfig = {
   FREE_AREA_TYPE?: FREEAREATYPES[];
   PROPERTY_TYPE?: PROPERTYTYPES[];
   TIME_PERIOD?: string;
+  NO_OF_ROOMS_BUCKET?: NO_OF_ROOMS_BUCKET[];
   keyword?: string;
 };
 export default class WillHabenService {
@@ -51,6 +48,9 @@ export default class WillHabenService {
     });
     config.FREE_AREA_TYPE?.forEach(freeArea => {
       params.append('FREE_AREA/FREE_AREA_TYPE', freeArea);
+    });
+    config.NO_OF_ROOMS_BUCKET?.forEach(rooms => {
+      params.append('NO_OF_ROOMS_BUCKET', rooms);
     });
     config.keyword ? params.append('keyword', config.keyword) : null;
     config.PRICE_FROM ? params.append('PRICE_FROM', config.PRICE_FROM) : null;
@@ -76,6 +76,7 @@ export default class WillHabenService {
         const flats: Array<FlatElement> = [];
         const data = JSON.parse(dataRaw);
         data.props?.pageProps?.searchResult?.advertSummaryList?.advertSummary?.forEach(
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           (element: any) => {
             // Get that date
             const publishedAtRaw = JSON.parse(
@@ -90,7 +91,12 @@ export default class WillHabenService {
             const publishedAt = dayjs(publishedAtRaw).format('DD.MM.YYYY');
 
             const newFlat: FlatElement = {
-              id: element.id,
+              price: element.attributes.attribute.find(
+                (attr: Attribute) => attr.name === 'PRICE'
+              )?.values[0],
+              rooms: element.attributes.attribute.find(
+                (attr: Attribute) => attr.name === 'NUMBER_OF_ROOMS'
+              )?.values[0],
               description: element.description,
               link: element.contextLinkList.contextLink.find(
                 (links: ContextLinks) => links.id === 'iadShareLink'
@@ -98,23 +104,32 @@ export default class WillHabenService {
               location: element.attributes.attribute.find(
                 (attr: Attribute) => attr.name === 'LOCATION'
               )?.values[0],
-              price: element.attributes.attribute.find(
-                (attr: Attribute) => attr.name === 'PRICE'
-              )?.values[0],
               address: element.attributes.attribute.find(
                 (attr: Attribute) => attr.name === 'ADDRESS'
               )?.values[0],
-              freeArea: element.attributes.attribute.find(
-                (attr: Attribute) =>
-                  attr.name === 'FREE_AREA/FREE_AREA_AREA_TOTAL'
-              )?.values[0],
-              rooms: element.attributes.attribute.find(
-                (attr: Attribute) => attr.name === 'NUMBER_OF_ROOMS'
-              )?.values[0],
+              freeArea: (() => {
+                const areas =
+                  element.attributes.attribute.find(
+                    (attr: Attribute) =>
+                      attr.name === 'FREE_AREA/FREE_AREA_AREA_TOTAL'
+                  )?.values || [];
+                const types =
+                  element.attributes.attribute.find(
+                    (attr: Attribute) => attr.name === 'FREE_AREA_TYPE_NAME'
+                  )?.values || [];
+                return areas
+                  .map(
+                    (area: string, index: number) =>
+                      `${area}qm ${types[index] || ''}`
+                  )
+                  .join(', ');
+              })(),
               squareMeters: element.attributes.attribute.find(
                 (attr: Attribute) => attr.name === 'ESTATE_SIZE'
               )?.values[0],
               publishedAt,
+              id: element.id,
+              company: element['advertiserInfo'].label,
               images,
             };
             flats.push(newFlat);
