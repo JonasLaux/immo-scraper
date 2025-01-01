@@ -1,6 +1,6 @@
 export type FlatElement = {
   address: string;
-  freeArea: string;
+  freeArea?: string;
   id: string;
   description: string;
   link: string;
@@ -11,4 +11,5 @@ export type FlatElement = {
   publishedAt: string;
   company: string;
   images?: string[];
+  tags?: string[];
 };

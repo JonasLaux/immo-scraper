@@ -55,6 +55,13 @@ export default class DiscordService {
       }
     });
 
+    if (flat.tags && flat.tags.length > 0) {
+      embed.addFields({
+        name: 'Tags',
+        value: flat.tags.join(', '),
+      });
+    }
+
     if (flat.images && flat.images.length > 0) {
       embed.setImage(flat.images[0]);
     }

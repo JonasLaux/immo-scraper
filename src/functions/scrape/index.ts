@@ -4,9 +4,10 @@ import DiscordService from '../../services/discord.service';
 
 import 'source-map-support/register';
 import willHabenConfig from './willhaben.config';
+import ImmoSuchmaschineService from '../../services/immoSuchmaschine.service';
 
 const willHabenService = new WillHabenService();
-
+const immoSuchmaschineService = new ImmoSuchmaschineService();
 // No payload needed for now
 export const scrape: CloudEventFunction = async () => {
   if (
@@ -27,7 +28,12 @@ export const scrape: CloudEventFunction = async () => {
   );
 
   try {
-    const flats = await willHabenService.getFlats(willHabenConfig);
+    const [willHabenFlats, immoSuchmaschineFlats] = await Promise.all([
+      willHabenService.getFlats(willHabenConfig),
+      immoSuchmaschineService.getFlats(),
+    ]);
+    const flats = [...willHabenFlats, ...immoSuchmaschineFlats];
+
     await discordService.connect();
     let messagesPosted = 0;
     await Promise.all(

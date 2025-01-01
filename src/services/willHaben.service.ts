@@ -5,21 +5,11 @@ import {
   PROPERTYTYPES,
   FREEAREATYPES,
   NO_OF_ROOMS_BUCKET,
+  Attribute,
+  AdvertImage,
+  ContextLinks,
 } from './willHaben.types';
 import * as Cheerio from 'cheerio';
-
-type AdvertImage = {
-  mainImageUrl: string;
-};
-
-type ContextLinks = {
-  id: string;
-  uri: string;
-};
-type Attribute = {
-  name: string;
-  values: string[];
-};
 
 export type WillHabenConfig = {
   AREA_ID?: VIENNADISTRICTS[];

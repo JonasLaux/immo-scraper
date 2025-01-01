@@ -1,16 +1,3 @@
-export type AdvertImage = {
-  mainImageUrl: string;
-};
-
-export type ContextLinks = {
-  id: string;
-  uri: string;
-};
-export type Attribute = {
-  name: string;
-  values: string[];
-};
-
 export enum VIENNADISTRICTS {
   FIRST = '117223',
   SECOND = '117224',
