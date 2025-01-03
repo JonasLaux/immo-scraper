@@ -37,7 +37,9 @@ export default class ImmoSuchmaschineService {
       const url = `${this.baseUrl}?${params.toString()}`;
       const response = await fetch(url);
       if (!response.ok) {
-        return Promise.reject('Failed to fetch data');
+        const error = await response.text();
+        console.error('ImmoSuchmaschineService error', error);
+        return Promise.resolve([]);
       }
       const html = await response.text();
       const $ = Cheerio.load(html);
@@ -49,7 +51,9 @@ export default class ImmoSuchmaschineService {
         const resultListElement = $(element);
 
         const elementId = resultListElement.attr('id');
-        if (!elementId) {
+        const link = resultListElement.find('.data_title a').attr('href');
+
+        if (!elementId || !link) {
           return;
         }
 
@@ -100,8 +104,6 @@ export default class ImmoSuchmaschineService {
         tags.each((i, tag) => {
           tagsArray.push($(tag).text().trim());
         });
-
-        const link = resultListElement.find('.data_title a').attr('href');
 
         const images: string[] = [];
 

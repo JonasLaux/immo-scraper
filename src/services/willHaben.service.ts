@@ -57,7 +57,9 @@ export default class WillHabenService {
       this.url = `${this.url}?${params.toString()}`;
       const response = await fetch(this.url);
       if (!response.ok) {
-        return Promise.reject('Failed to fetch data');
+        const error = await response.text();
+        console.error('WillHabenService error', error);
+        return Promise.resolve([]);
       }
       const html = await response.text();
       const $ = Cheerio.load(html);

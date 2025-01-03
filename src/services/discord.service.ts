@@ -24,7 +24,7 @@ export default class DiscordService {
   }
   public constructEmbed(flat: FlatElement): EmbedBuilder {
     const embed = new EmbedBuilder()
-      .setTitle(flat.description)
+      .setTitle(flat.description || 'NO DESCRIPTION FOUND')
       .setURL(flat.link)
       .setTimestamp();
 
