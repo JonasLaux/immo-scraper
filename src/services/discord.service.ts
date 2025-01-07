@@ -102,10 +102,12 @@ export default class DiscordService {
       }
 
       const messages = await channel.messages.fetch({ limit: 100 });
-      const message = messages.find(message =>
-        message.embeds[0].data.fields?.find(
-          field => field.name === 'ID' && field.value === flatId
-        )
+      const message = messages.find(
+        message =>
+          message.embeds.length > 0 &&
+          message.embeds[0].data?.fields?.find(
+            field => field.name === 'ID' && field.value === flatId
+          )
       );
 
       return message ? true : false;
