@@ -3,6 +3,8 @@ import {
   TextChannel,
   GatewayIntentBits,
   EmbedBuilder,
+  Collection,
+  Message,
 } from 'discord.js';
 import { FlatElement } from '../global.types';
 
@@ -20,6 +22,24 @@ export default class DiscordService {
         GatewayIntentBits.GuildMessages,
         GatewayIntentBits.MessageContent,
       ],
+    });
+
+    // Add event handlers for connection troubleshooting
+    this.client.on('error', error => {
+      console.error('Discord client error:', error);
+    });
+
+    this.client.on('warn', warning => {
+      console.warn('Discord client warning:', warning);
+    });
+
+    this.client.on('debug', info => {
+      // Uncomment for detailed debug info
+      console.debug('Discord client debug:', info);
+    });
+
+    this.client.on('disconnect', () => {
+      console.warn('Discord client disconnected');
     });
   }
   public constructEmbed(flat: FlatElement): EmbedBuilder {
@@ -73,16 +93,24 @@ export default class DiscordService {
     await this.client.login(this.token);
   }
 
-  public async publishMessage(message: EmbedBuilder): Promise<void> {
-    try {
-      const channel = (await this.client.channels.fetch(
-        this.channelId
-      )) as TextChannel;
+  public async getChannel(): Promise<TextChannel> {
+    const channel = (await this.client.channels.fetch(
+      this.channelId
+    )) as TextChannel;
 
-      if (!channel) {
-        console.error(`Channel with id ${this.channelId} not found`);
-        return;
-      }
+    if (!channel) {
+      throw new Error(`Channel with id ${this.channelId} not found`);
+    }
+
+    return channel;
+  }
+
+  public async publishMessage(
+    message: EmbedBuilder,
+    providedChannel: TextChannel
+  ): Promise<void> {
+    try {
+      const channel = providedChannel;
 
       await channel.send({ embeds: [message] });
       return Promise.resolve();
@@ -91,17 +119,11 @@ export default class DiscordService {
     }
   }
 
-  public async isFlatPosted(flatId: string): Promise<boolean> {
+  public async isFlatPosted(
+    flatId: string,
+    messages: Collection<string, Message>
+  ): Promise<boolean> {
     try {
-      const channel = (await this.client.channels.fetch(
-        this.channelId
-      )) as TextChannel;
-
-      if (!channel) {
-        throw new Error(`Channel with id ${this.channelId} not found`);
-      }
-
-      const messages = await channel.messages.fetch({ limit: 100 });
       const message = messages.find(
         message =>
           message.embeds.length > 0 &&
@@ -121,10 +143,17 @@ export default class DiscordService {
     }
   }
 
-  disconnect(): void {
+  disconnect(): Promise<void> {
     if (!this.client) {
-      return;
+      return Promise.resolve();
     }
-    this.client.destroy();
+
+    try {
+      this.client.destroy();
+      return Promise.resolve();
+    } catch (error) {
+      console.error('Error disconnecting Discord client:', error);
+      return Promise.resolve(); // Still resolve to not block cleanup
+    }
   }
 }

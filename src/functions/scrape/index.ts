@@ -35,13 +35,25 @@ export const scrape: CloudEventFunction = async () => {
     const flats = [...willHabenFlats, ...immoSuchmaschineFlats];
 
     await discordService.connect();
+
+    // Fetch the channel once
+    const channel = await discordService.getChannel();
+
+    // Fetch all messages from the channel once
+    const messages = await channel.messages.fetch({ limit: 100 });
+
     let messagesPosted = 0;
     await Promise.all(
       flats.map(async flat => {
-        const isMessagePosted = await discordService.isFlatPosted(flat.id);
+        const isMessagePosted = await discordService.isFlatPosted(
+          flat.id,
+          messages
+        );
         if (!isMessagePosted) {
+          // Pass the channel to publishMessage
           await discordService.publishMessage(
-            discordService.constructEmbed(flat)
+            discordService.constructEmbed(flat),
+            channel
           );
           messagesPosted++;
         }
